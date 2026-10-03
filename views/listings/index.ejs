@@ -1,0 +1,305 @@
+<% layout("/layouts/boilarplate") %>
+
+<style>
+/* ============================================================
+   1. THEME TOKENS
+   ============================================================ */
+:root {
+  --primary:        #fe424d;
+  --primary-dark:   #e0202c;
+  --primary-light:  #fff1f2;
+  --accent:         #ff8a5c;
+  --text:           #0f172a;
+  --muted:          #64748b;
+  --bg:             #f8fafc;
+  --surface:        #ffffff;
+  --border:         #e2e8f0;
+  --shadow-sm:      0 1px 2px rgba(15, 23, 42, .06);
+  --shadow-md:      0 6px 18px rgba(15, 23, 42, .08);
+  --shadow-lg:      0 14px 40px rgba(15, 23, 42, .12);
+
+  /* Bootstrap overrides */
+  --bs-primary:           #fe424d;
+  --bs-primary-rgb:       254, 66, 77;
+  --bs-link-color:        #fe424d;
+  --bs-link-hover-color:  #e0202c;
+}
+
+/* ============================================================
+   2. BASE
+   ============================================================ */
+* { box-sizing: border-box; }
+
+/* body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+} */
+
+/* Push footer to bottom if content is short */
+body > .container {
+  flex: 1 0 auto;
+  padding-top: 28px;
+  padding-bottom: 40px;
+}
+
+a { text-decoration: none; }
+
+/* Generic accent helper */
+.cl {
+  color: var(--primary) !important;
+}
+
+/* ============================================================
+   5. LISTING CARDS (for /listings page)
+   ============================================================ */
+.listings-head {
+  margin-bottom: 24px;
+}
+.listings-head h1 {
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  margin: 0 0 4px;
+  color: var(--text);
+}
+.listings-head h1 .accent { color: var(--primary); }
+.listings-head p {
+  color: var(--muted);
+  font-size: .92rem;
+  margin: 0;
+}
+
+.card {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 18px;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.card:hover {
+  transform: translateY(-3px);
+  border-color: #ffc9ce !important;
+  box-shadow: var(--shadow-md);
+}
+
+
+/* Info icon link */
+.listing-link {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: .95rem;
+  transition: all .2s ease;
+  z-index: 2;
+}
+.listing-link:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(254, 66, 77, .35);
+}
+.listing-link .cl { color: inherit !important; }
+
+/* Card header */
+.card .card-header {
+  background: #fff !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 16px 56px 14px 22px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--text);
+}
+
+/* Card body */
+.card .card-body {
+  padding: 18px 22px 22px;
+}
+.card .card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 16px;
+  letter-spacing: -.01em;
+}
+
+/* Used form */
+.used-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  margin-top: 4px;
+}
+.used-form .field {
+  flex: 1 1 220px;
+  min-width: 180px;
+}
+.form-label {
+  display: block;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+/* Inputs */
+.form-control {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: .92rem;
+  color: var(--text);
+  background: #fff;
+  outline: none;
+  transition: all .2s ease;
+}
+.form-control::placeholder { color: #94a3b8; }
+.form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(254, 66, 77, .15);
+}
+
+/* Buttons */
+.btn {
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: .9rem;
+  padding: 11px 22px;
+  transition: all .2s ease;
+}
+.btn-primary {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(254, 66, 77, .28);
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background: var(--primary-dark) !important;
+  border-color: var(--primary-dark) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(254, 66, 77, .35);
+}
+.btn-primary:active { transform: translateY(0); }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: #fff;
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  color: var(--muted);
+}
+.empty-state .icon {
+  font-size: 38px;
+  color: var(--primary);
+  opacity: .85;
+  margin-bottom: 10px;
+}
+.empty-state h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 4px;
+}
+.empty-state p { font-size: .88rem; margin: 0; }
+
+/* ============================================================
+   6. FLASH MESSAGES (optional, matches theme)
+   ============================================================ */
+.alert {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  font-size: .9rem;
+  font-weight: 500;
+}
+.alert-success {
+  background: #dcfce7;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+.alert-danger,
+.alert-error {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+.alert-info {
+  background: var(--primary-light);
+  border-color: #ffd9dc;
+  color: var(--primary);
+}
+</style>
+
+<div class="listings-head">
+  <h1>All <span class="accent">Listings</span></h1>
+  <p>Track your stock and log used quantities.</p>
+</div>
+
+<% if (allListings && allListings.length > 0) { %>
+  <% for (let listing of allListings) { %>
+      <% if(listing.owner._id.equals(currUser._id) ) {%>
+    <div class="card">
+      <a href="/listings/<%= listing._id %>" class="listing-link" title="View details">
+        <i class="fa-solid fa-circle-info"></i>
+      </a>
+
+      <h5 class="card-header"><%= listing.name %></h5>
+
+      <div class="card-body ">
+        <h5 class="card-title ms-3">Quantity : <%= listing.quantity %></h5>
+
+        <div class="row">
+            <div class="col-5">
+        <form action="/listings/used/<%= listing._id %>" method="post" novalidate class="used-form ms3">
+          <div class="field ms-3 mb-3">
+            <label for="quantity-<%= listing._id %>" class="form-label">Extra Used Quantity</label>
+            <input
+              id="quantity-<%= listing._id %>"
+              type="number"
+              name="quantity"
+              min="1"
+              class="form-control"
+              required
+              placeholder="Enter extra used quantity"
+            />
+          </div>
+          <button class="btn btn-primary mb-3 ms-3 ">Used</button>
+        </form>
+      </div>
+      </div>
+      </div>
+    </div>
+  <% } %>
+  <% } %>
+<% } else { %>
+  <div class="empty-state">
+    <div class="icon">📦</div>
+    <h3>No listings yet</h3>
+    <p>Create your first listing to start tracking stock.</p>
+  </div>
+<% } %>

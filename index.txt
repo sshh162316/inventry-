@@ -1,0 +1,31 @@
+<% layout("/layouts/boilarplate") %>
+
+<body>
+
+    <% for (let listing of allListings){ %>
+    
+    <div class="card mb-5">
+        <a href="/listings/<%= listing._id %>" class="listing-link ms-auto info"><i class="fa-solid fa-circle-info cl"></i></a>
+    <h5 class="card-header"><%= listing.name %> </h5>
+
+
+    <div class="card-body mt-3 mt-3 ms-3">
+    <h5 class="card-title"> Quantity : <%= listing.quantity %> </h5>
+    <!-- <p class="card-text"> <%= listing.quantity %> </p> -->
+
+    <div class="row">
+    <div class="col-4 ">
+    <form action="/listings/used/<%= listing._id %>" method="post" novalidate class="needs-validation">
+        <label for="quantity" class="form-label ">Extra Used Quantity :</label>
+        <input id="quantity" type="number" name="quantity" min="1" class="form-control mb-2" required placeholder="enter extra used quantity">
+        <button class="btn btn-primary mb-2 cl" >Used</button>
+    </form>
+    
+    </div>
+    </div>  
+    </div>
+    </div>
+    
+<% } %>
+
+</body>

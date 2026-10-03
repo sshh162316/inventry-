@@ -1,0 +1,240 @@
+<% layout("/layouts/boilarplate") %>
+<style>
+  :root {
+    --primary:       #fe424d;
+    --primary-dark:  #e0202c;
+    --primary-light: #fff1f2;
+    --accent:        #ff8a5c;
+    --text:          #0f172a;
+    --muted:         #64748b;
+    --bg:            #f8fafc;
+    --border:        #e2e8f0;
+    --shadow-sm:     0 1px 2px rgba(15, 23, 42, .06);
+    --shadow-md:     0 8px 24px rgba(15, 23, 42, .08);
+  }
+
+  /* ---------- PAGE HEADING ---------- */
+  .form-head {
+    margin-bottom: 24px;
+  }
+  .form-head h3 {
+    position: relative;
+    font-size: 1.65rem;
+    font-weight: 800;
+    letter-spacing: -.03em;
+    color: var(--text);
+    margin: 0 0 8px;
+    padding-left: 16px;
+  }
+  .form-head h3::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 5px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, var(--primary), var(--accent));
+  }
+  .form-head p {
+    font-size: .92rem;
+    color: var(--muted);
+    margin: 0 0 0 16px;
+  }
+
+  /* ---------- FORM CARD ---------- */
+  .form-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 34px 32px 28px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow .25s ease, border-color .25s ease;
+  }
+  .form-card:hover {
+    border-color: #ffc9ce;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* ---------- LABELS ---------- */
+  .form-label {
+    font-size: .74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  /* ---------- INPUTS ---------- */
+  .form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    font-family: inherit;
+    font-size: .93rem;
+    color: var(--text);
+    background: #fff;
+    outline: none;
+    transition: all .2s ease;
+  }
+  .form-control::placeholder {
+    color: #94a3b8;
+    font-size: .9rem;
+  }
+  .form-control:hover {
+    border-color: #cbd5e1;
+  }
+  .form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(254, 66, 77, .15);
+    background: #fff;
+  }
+
+  /* ---------- FEEDBACK ---------- */
+  .valid-feedback {
+    color: #15803d;
+    font-size: .8rem;
+    font-weight: 600;
+    margin-top: 6px;
+  }
+  .invalid-feedback {
+    color: var(--primary);
+    font-size: .8rem;
+    font-weight: 600;
+    margin-top: 6px;
+  }
+
+  .was-validated .form-control:invalid,
+  .form-control.is-invalid {
+    border-color: var(--primary);
+    background-image: none;
+  }
+  .was-validated .form-control:valid,
+  .form-control.is-valid {
+    border-color: #22c55e;
+    background-image: none;
+  }
+
+  /* ---------- BUTTON ---------- */
+  .add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 13px 24px;
+    border: none;
+    border-radius: 11px;
+    background: var(--primary);
+    color: #fff;
+    font-size: .95rem;
+    font-weight: 700;
+    letter-spacing: .01em;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(254, 66, 77, .3);
+    transition: all .22s ease;
+  }
+  .add-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(254, 66, 77, .38);
+  }
+  .add-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 14px rgba(254, 66, 77, .3);
+  }
+
+  /* ---------- BOTTOM LINK ---------- */
+  .alt-link {
+    display: block;
+    text-align: center;
+    margin-top: 18px;
+    font-size: .88rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color .2s ease;
+  }
+  .alt-link strong {
+    color: var(--primary);
+    font-weight: 700;
+  }
+  .alt-link:hover strong {
+    color: var(--primary-dark);
+    text-decoration: underline;
+  }
+
+  /* ---------- FIELD SPACING ---------- */
+  .mb-3 { margin-bottom: 20px !important; }
+</style>
+
+<body>
+  <div class="row mt-4 mb-3">
+    <div class="col-12 col-md-10 col-lg-6 offset-md-1 offset-lg-3">
+
+      <div class="form-head">
+        <h3>Sign up on StockFlow</h3>
+        <p>Create your account to start tracking inventory.</p>
+      </div>
+
+      <div class="form-card">
+        <form action="/signup" method="post" novalidate class="needs-validation">
+
+          <!-- Username -->
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input
+              id="username"
+              type="text"
+              name="username"
+              placeholder="Enter username"
+              class="form-control"
+              required
+            />
+            <div class="valid-feedback">Looks good!</div>
+            <div class="invalid-feedback">Please enter a username.</div>
+          </div>
+
+          <!-- Email -->
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              placeholder="Enter email"
+              class="form-control"
+              required
+            />
+            <div class="valid-feedback">Looks good!</div>
+            <div class="invalid-feedback">Please enter a valid email.</div>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              placeholder="Enter password"
+              class="form-control"
+              required
+            />
+            <div class="valid-feedback">Looks good!</div>
+            <div class="invalid-feedback">Please enter a password.</div>
+          </div>
+
+          <button type="submit" class="add-btn">Create Account</button>
+
+          <a href="/login" class="alt-link">
+            Already have an account? <strong>Log in</strong>
+          </a>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</body>

@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockFlow</title>
+  <meta name="description" content="StockFlow is a simple, powerful inventory management system to track stock, orders and suppliers in real time." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============ 1. RESET & TOKENS ============ */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary:        #fe424d;
+      --primary-dark:   #e0202c;
+      --primary-light:  #fff1f2;
+      --accent:         #ff8a5c;
+      --text:           #0f172a;
+      --muted:          #64748b;
+      --bg:             #ffffff;
+      --surface:        #f8fafc;
+      --border:         #e2e8f0;
+      --radius:         12px;
+      --shadow-sm:      0 1px 2px rgba(15, 23, 42, .06);
+      --shadow-md:      0 4px 14px rgba(15, 23, 42, .08);
+      --shadow-lg:      0 24px 50px rgba(15, 23, 42, .14);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    .container {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ============ 2. BUTTONS ============ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: .925rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all .2s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(254, 66, 77, .28);
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(254, 66, 77, .35);
+    }
+
+    .btn-ghost { color: var(--text); }
+    .btn-ghost:hover { background: var(--primary-light); color: var(--primary); }
+
+    .btn-outline {
+      background: #fff;
+      border-color: var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
+      transform: translateY(-2px);
+    }
+
+    .btn-lg { padding: 15px 30px; font-size: 1rem; border-radius: 12px; }
+
+    /* ============ 3. NAVBAR ============ */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, .85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+
+    .logo-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: grid;
+      place-items: center;
+      font-size: 19px;
+      box-shadow: 0 4px 12px rgba(254, 66, 77, .32);
+    }
+
+    .nav-links { display: flex; gap: 34px; }
+
+    .nav-links a {
+      font-size: .925rem;
+      font-weight: 500;
+      color: var(--muted);
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+
+    /* ============ 4. HERO ============ */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 84px 0 104px;
+    }
+
+    /* soft decorative glows */
+    .hero::before,
+    .hero::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero::before {
+      top: -220px; right: -160px;
+      width: 620px; height: 620px;
+      background: radial-gradient(circle, rgba(254, 66, 77, .14), transparent 68%);
+    }
+    .hero::after {
+      bottom: -260px; left: -200px;
+      width: 560px; height: 560px;
+      background: radial-gradient(circle, rgba(255, 138, 92, .13), transparent 68%);
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 15px;
+      margin-bottom: 22px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      border: 1px solid #ffd9dc;
+      color: var(--primary);
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .01em;
+    }
+    .badge .pulse {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, .6);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      70%  { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.3rem, 5vw, 3.5rem);
+      line-height: 1.08;
+      font-weight: 800;
+      letter-spacing: -.035em;
+    }
+
+    .gradient-text {
+      background: linear-gradient(120deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      max-width: 520px;
+      margin: 22px 0 34px;
+      font-size: 1.07rem;
+      color: var(--muted);
+    }
+
+    .hero-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    /* stats row */
+    .hero-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 44px;
+      margin-top: 52px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+    }
+    .stat strong {
+      display: block;
+      font-size: 1.55rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+    .stat span {
+      font-size: .82rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* ============ 5. DASHBOARD MOCKUP ============ */
+    .mockup {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-14px); }
+    }
+
+    .mock-bar {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 14px 18px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot.red    { background: #ff5f57; }
+    .dot.yellow { background: #febc2e; }
+    .dot.green  { background: #28c840; }
+    .mock-bar-title {
+      margin-left: auto;
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .mock-body { padding: 22px; }
+
+    .mock-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .mock-card {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+    }
+    .mock-card small {
+      display: block;
+      font-size: .7rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 4px;
+    }
+    .mock-card b {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+    .trend { font-size: .7rem; font-weight: 700; padding: 2px 7px; border-radius: 999px; margin-left: 6px; vertical-align: 3px; }
+    .trend.up   { color: #15803d; background: #dcfce7; }
+    .trend.down { color: #b45309; background: #fef3c7; }
+
+    .mock-chart-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: .74rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .mock-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 9px;
+      height: 118px;
+    }
+    .bar {
+      flex: 1;
+      border-radius: 7px 7px 3px 3px;
+      background: linear-gradient(180deg, var(--primary), #ff8a8f);
+      opacity: .9;
+      animation: grow .9s cubic-bezier(.16, 1, .3, 1) backwards;
+    }
+    .bar:nth-child(odd) { background: linear-gradient(180deg, var(--accent), #ffc4a3); }
+    @keyframes grow { from { height: 0 !important; opacity: 0; } }
+
+    /* ============ 6. FEATURES ============ */
+    .features {
+      padding: 92px 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-head { text-align: center; max-width: 620px; margin: 0 auto 56px; }
+    .section-head h2 {
+      font-size: clamp(1.75rem, 3.4vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      margin-bottom: 14px;
+    }
+    .section-head p { color: var(--muted); font-size: 1.02rem; }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 22px;
+    }
+
+    .feature-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 30px 26px;
+      transition: all .25s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-6px);
+      border-color: #ffc9ce;
+      box-shadow: var(--shadow-md);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      margin-bottom: 18px;
+      background: var(--primary-light);
+    }
+    .feature-card:nth-child(2) .feature-icon { background: #fff4ee; }
+    .feature-card:nth-child(3) .feature-icon { background: #fef3c7; }
+    .feature-card:nth-child(4) .feature-icon { background: #dcfce7; }
+
+    .feature-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -.01em;
+    }
+    .feature-card p { font-size: .9rem; color: var(--muted); }
+
+    /* ============ 7. CTA STRIP ============ */
+    .cta {
+      padding: 88px 0;
+    }
+    .cta-box {
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      padding: 60px 32px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #fe424d, #ff5c52 45%, #ff8a5c);
+      box-shadow: 0 24px 60px rgba(254, 66, 77, .32);
+    }
+    .cta-box h2 {
+      color: #fff;
+      font-size: clamp(1.6rem, 3.4vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      margin-bottom: 12px;
+    }
+    .cta-box p {
+      color: rgba(255, 255, 255, .9);
+      max-width: 480px;
+      margin: 0 auto 30px;
+    }
+    .cta-actions { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+    .btn-white {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, .16);
+    }
+    .btn-white:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0, 0, 0, .22); }
+    .btn-ghost-white {
+      background: rgba(255, 255, 255, .12);
+      border-color: rgba(255, 255, 255, .5);
+      color: #fff;
+    }
+    .btn-ghost-white:hover { background: rgba(255, 255, 255, .22); transform: translateY(-2px); }
+
+    /* ============ 8. FOOTER ============ */
+    .footer {
+      padding: 34px 0;
+      border-top: 1px solid var(--border);
+    }
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .875rem;
+      color: var(--muted);
+    }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 24px; }
+    .footer-links a:hover { color: var(--primary); }
+
+    /* ============ 9. RESPONSIVE ============ */
+    @media (max-width: 980px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 56px; }
+      .hero-sub  { max-width: 100%; }
+      .nav-links { display: none; }
+    }
+
+    @media (max-width: 560px) {
+      .hero { padding: 56px 0 72px; }
+      .hero-stats { gap: 28px; }
+      .stat strong { font-size: 1.3rem; }
+      .hero-buttons .btn { flex: 1 1 auto; }
+      .mock-cards { grid-template-columns: 1fr; }
+      .cta-box { padding: 44px 22px; }
+      .nav-actions .btn-ghost { display: none; } /* keep only Sign Up on tiny screens */
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="" class="logo">
+        <span class="logo-mark">📦</span>
+        <span>StockFlow</span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <% if(currUser) {%>
+          <a href="/listings"  class="btn btn-ghost">Continue</a>
+          <a href="/logout"  class="btn btn-ghost">Log Out</a>
+          <%}%>
+          <% if(!currUser) {%>
+            <a href="/login"  class="btn btn-ghost">Login</a>
+            <a href="/signup" class="btn btn-primary">Sign Up</a>
+          <%}%>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+
+        <!-- Left: copy -->
+        <div class="hero-text">
+          <span class="badge">
+            <span class="pulse"></span> Trusted by 2,000+ businesses
+          </span>
+
+          <h1>
+            Manage your <span class="gradient-text">inventory</span><br />
+            without the chaos.
+          </h1>
+
+          <p class="hero-sub">
+            Track stock levels, monitor orders, and get low-stock alerts in real time —
+            all from one simple dashboard built for growing businesses.
+          </p>
+
+          <div class="hero-buttons">
+            <% if(currUser) {%>
+              <a href="/listings" class="btn btn-primary btn-lg">Continue →</a>
+              <a href="/logout"  class="btn btn-outline btn-lg">Log Out</a>
+              <%}%>
+            <% if(!currUser) {%>
+              <a href="/signup" class="btn btn-primary btn-lg">Get Started Free →</a>
+              <a href="/login"  class="btn btn-outline btn-lg">Login to Account</a>
+              <%}%>
+          </div>
+
+          <div class="hero-stats">
+            <div class="stat"><strong>1.2M+</strong><span>Items tracked</span></div>
+            <div class="stat"><strong>99.9%</strong><span>Uptime</span></div>
+            <div class="stat"><strong>4.9★</strong><span>User rating</span></div>
+          </div>
+        </div>
+
+        <!-- Right: dashboard mockup -->
+        <div class="hero-visual">
+          <div class="mockup">
+            <div class="mock-bar">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+              <span class="mock-bar-title">Inventory Dashboard</span>
+            </div>
+
+            <div class="mock-body">
+              <div class="mock-cards">
+                <div class="mock-card">
+                  <small>Total Items</small>
+                  <b>1,248</b><span class="trend up">+12%</span>
+                </div>
+                <div class="mock-card">
+                  <small>Low Stock</small>
+                  <b>23</b><span class="trend down">+5</span>
+                </div>
+                <div class="mock-card">
+                  <small>Orders Today</small>
+                  <b>86</b><span class="trend up">+8%</span>
+                </div>
+                <div class="mock-card">
+                  <small>Stock Value</small>
+                  <b>$48.2K</b>
+                </div>
+              </div>
+
+              <div class="mock-chart-label">
+                <span>Weekly Movement</span>
+                <span>Last 7 days</span>
+              </div>
+
+              <div class="mock-chart">
+                <div class="bar" style="height: 45%; animation-delay: .05s"></div>
+                <div class="bar" style="height: 70%; animation-delay: .10s"></div>
+                <div class="bar" style="height: 38%; animation-delay: .15s"></div>
+                <div class="bar" style="height: 88%; animation-delay: .20s"></div>
+                <div class="bar" style="height: 58%; animation-delay: .25s"></div>
+                <div class="bar" style="height: 96%; animation-delay: .30s"></div>
+                <div class="bar" style="height: 66%; animation-delay: .35s"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ FEATURES ============ -->
+    <section class="features" id="features">
+      <div class="container">
+        <div class="section-head">
+          <h2>Everything you need to stay stocked</h2>
+          <p>Powerful tools that keep your warehouse, orders, and reports perfectly in sync.</p>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Real-Time Stock Tracking</h3>
+            <p>See exactly what's in stock, what's reserved, and what's running out — updated instantly.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🔔</div>
+            <h3>Low-Stock Alerts</h3>
+            <p>Get automatic notifications before you run out, so you never miss a sale.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🧾</div>
+            <h3>Orders & Suppliers</h3>
+            <p>Create purchase orders, manage suppliers, and track deliveries in one place.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">📈</div>
+            <h3>Reports & Analytics</h3>
+            <p>Export clean reports on sales, stock movement, and profit — anytime you need.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section class="cta" id="pricing">
+      <div class="container">
+        <div class="cta-box">
+          <h2>Ready to take control of your inventory?</h2>
+          <p>Create your free account in under a minute. No credit card required.</p>
+
+          <div class="cta-actions">
+            <% if(currUser) {%>
+            <a href="/listings" class="btn btn-white btn-lg">Continue</a>
+            <a href="logout"  class="btn btn-ghost-white btn-lg">Log Out</a>
+            <%}%>
+            <% if(!currUser) {%>
+            <a href="/signup" class="btn btn-white btn-lg">Create Free Account</a>
+            <a href="/login"  class="btn btn-ghost-white btn-lg">I already have an account</a>
+            <%}%>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer" id="contact">
+    <div class="container footer-inner">
+      <span>© <span id="year"></span> StockFlow. All rights reserved.</span>
+
+      <nav class="footer-links">
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#">Privacy</a>
+        <a href="#">Support</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    // Auto-update the footer year
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+
+</body>
+</html>

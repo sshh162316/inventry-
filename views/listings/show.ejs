@@ -1,0 +1,591 @@
+<%
+  // Safely get the updatedAt array (or empty array if missing)
+  const activity = Array.isArray(listing.updatedAt) ? listing.updatedAt : [];
+
+  // Sum all 'used' values; fallback to 0 if missing or invalid
+  const totalUsed = activity.reduce((sum, entry) => sum + (Number(entry.used) || 0), 0);
+  
+  // Average per update (avoid division by zero)
+  const avgUsed = activity.length ? (totalUsed / activity.length) : 0;
+
+  // Peak single update
+  const maxUsed = activity.length
+    ? Math.max(...activity.map(e => Number(e.used) || 0))
+    : 0;
+
+  // Prepare data for Chart.js (sorted chronologically)
+  const sortedActivity = activity
+    .slice()
+    .sort((a, b) => new Date(a.time) - new Date(b.time));
+
+  const chartLabels = sortedActivity.map(a =>
+    new Date(a.time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  );
+  const chartValues = sortedActivity.map(a => Number(a.used) || 0);
+  const chartTimes  = sortedActivity.map(a =>
+    new Date(a.time).toLocaleString('en-US', {
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    })
+  );
+
+    // Extract all 'used' numbers, ignoring invalid entries
+  const usedValues = activity
+    .map(entry => Number(entry.used))
+    .filter(n => !isNaN(n));
+
+  // Peak = highest single 'used' value (0 if no data)
+  const peakUsed = usedValues.length ? Math.max(...usedValues) : 0;
+
+   // Helper for formatting dates (add if not already)
+  function formatDate(date, withTime = false) {
+    if (!date) return '—';
+    const d = new Date(date);
+    if (isNaN(d)) return '—';
+    const options = {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    };
+    if (withTime) {
+      options.hour = '2-digit';
+      options.minute = '2-digit';
+    }
+    return d.toLocaleString('en-US', options);
+  }
+%>
+%>
+
+<% layout("/layouts/boilarplate") %>
+<!-- </body> -->
+
+
+  <!-- ============ PAGE HEADER ============ -->
+  <section class="page-head">
+    <div class="container page-head-inner">
+
+      <nav class="breadcrumb">
+        <a href="/">Home</a>
+        <span class="sep">/</span>
+        <a href="/listings">Listings</a>
+        <span class="sep">/</span>
+        <span> <%= listing.name %> </span>
+      </nav>
+
+      <div class="head-row">
+        <div class="head-title">
+          <div class="head-icon">📦</div>
+          <div>
+            <h1> <%= listing.name %> </h1>
+            <div class="head-meta">
+              Supplier: <strong> <%= listing.supplier %> </strong>
+              &nbsp;•&nbsp; Added <%= new Date(listing.createdAt).toLocaleString('en-US', {  year: 'numeric',  month: 'short',  day: 'numeric',  hour: '2-digit',minute: '2-digit'}) %>
+            </div>
+          </div>
+        </div>
+
+        <span class="chip chip-in">
+          <span class="dot"></span> In Stock
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STAT CARDS ============ -->
+  <div class="container">
+    <div class="stats-grid">
+
+      <div class="stat-card">
+        <div class="stat-label">📦 Quantity</div>
+        <div class="stat-value"> <%= listing.quantity %> </div>
+        <div class="stat-sub">units currently on hand</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">💰 Unit Price</div>
+        <div class="stat-value">₹ <%= listing.unitPrice %> </div>
+        <div class="stat-sub">per unit</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">🧮 Total Value</div>
+        <div class="stat-value accent-text">₹ <%= listing.quantity * listing.unitPrice %></div>
+        <div class="stat-sub">quantity × unit price</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">📊 Total Used</div>
+        <div class="stat-value"><%= totalUsed %></div>
+        <div class="stat-sub"> <%= activity.length %> updates recorded</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ DETAILS ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <div class="card-head">
+          <h2>📋 Listing Details</h2>
+          <p>All information stored for this listing</p>
+        </div>
+
+        <div class="details-grid">
+
+          <div class="detail-item">
+            <div class="detail-label">🏷️ Name</div>
+            <div class="detail-value"> <%= listing.name %> </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">📦 Quantity</div>
+            <div class="detail-value"> <%= listing.quantity %>  units</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">💰 Unit Price</div>
+            <div class="detail-value">₹ <%= listing.unitPrice %></div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">🧮 Total Value</div>
+            <div class="detail-value accent-text">₹ <%= listing.quantity * listing.unitPrice %>  </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">🏢 Supplier</div>
+            <div class="detail-value mono"> <%= listing.supplier %> </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">👤 Owner</div>
+            <div class="detail-value"> <%= listing.owner.username %> </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">📅 Created At</div>
+            <div class="detail-value"><%= new Date(listing.createdAt).toLocaleString('en-US', {  year: 'numeric',  month: 'short',  day: 'numeric',  hour: '2-digit',minute: '2-digit'}) %></div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">🆔 Listing ID</div>
+            <div class="detail-value mono"> <%= listing._id %> </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ANALYTICS / CHART ============ -->
+<!-- ============ ANALYTICS / CHART ============ -->
+<section class="section" style="padding-top: 0;">
+  <div class="container">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>📈 Usage Analytics</h2>
+          <p>Units used over time (from <code>updatedAt</code>)</p>
+        </div>
+
+        <% if (activity.length > 0) { %>
+          <div style="display:flex; gap:20px; flex-wrap:wrap;">
+            <div>
+              <div class="detail-label" style="margin:0;">Total Used</div>
+              <div style="font-weight:800; font-size:1.1rem;"><%= totalUsed %></div>
+            </div>
+            <div>
+              <div class="detail-label" style="margin:0;">Avg / Update</div>
+              <div style="font-weight:800; font-size:1.1rem;"><%= avgUsed.toFixed(1) %></div>
+            </div>
+            <div>
+              <div class="detail-label" style="margin:0;">Peak</div>
+              <div style="font-weight:800; font-size:1.1rem;"><%= peakUsed %></div>
+            </div>
+          </div>
+        <% } %>
+      </div>
+
+      <div class="card-body">
+        <% if (activity.length > 0) { %>
+          <div class="chart-wrap">
+            <canvas id="usageChart"></canvas>
+          </div>
+        <% } else { %>
+          <div class="empty-state">
+            <div class="icon">📉</div>
+            <h3>No usage data yet</h3>
+            <p>This listing hasn't been updated since it was created.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <!-- ============ ACTIVITY LOG ============ -->
+  <section class="section" style="padding-top: 0;">
+    <div class="container">
+      <div class="card">
+        <div class="card-head">
+          <h2>🕓 Update History</h2>
+          <p>4 records</p>
+        </div>
+
+        <div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th style="width:60px;">#</th>
+        <th>Time</th>
+        <th>Used</th>
+        <th style="text-align:right;">Share of Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% 
+        // Show most recent first
+        const reversedActivity = activity.slice().reverse();
+        reversedActivity.forEach((entry, index) => {
+          const used = Number(entry.used) || 0;
+          const percent = totalUsed > 0 ? ((used / totalUsed) * 100).toFixed(1) : '0.0';
+      %>
+        <tr>
+          <td><span class="idx"><%= activity.length - index %></span></td>
+          <td><%= formatDate(entry.time, true) %></td>
+          <td><span class="pill"><%= used %> units</span></td>
+          <td style="text-align:right; color: var(--muted); font-weight:600;"><%= percent %>%</td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ACTION BAR ============ -->
+  <section class="section" style="padding-top: 0; padding-bottom: 60px;">
+    <div class="container">
+      <div class="action-bar">
+
+        <div class="group">
+          <a href="/listings" class="btn btn-outline">← Back to Listings</a>
+          <a href="/listings/<%= listing._id %>/edit" class="btn btn-primary">✏️ Edit Listing</a>
+        </div>
+
+        <form 
+          action="/listings/<%=listing._id%>?_method=DELETE" 
+          method="POST" 
+          onsubmit="return confirm('Delete this listing permanently? This cannot be undone.');"
+          style="display:inline;"
+        >
+          <button type="submit" class="btn btn-ghost danger">🗑️ Delete Listing</button>
+        </form>
+
+      </div>
+    </div>
+  </section>
+
+<!-- </body> -->
+
+<!-- --------------- STYLE --------------- -->
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary:       #fe424d;
+      --primary-dark:  #e0202c;
+      --primary-light: #fff1f2;
+      --accent:        #ff8a5c;
+      --text:          #0f172a;
+      --muted:         #64748b;
+      --bg:            #ffffff;
+      --surface:       #f8fafc;
+      --border:        #e2e8f0;
+      --shadow-sm:     0 1px 2px rgba(15, 23, 42, .06);
+      --shadow-md:     0 4px 14px rgba(15, 23, 42, .08);
+      --shadow-lg:     0 24px 50px rgba(15, 23, 42, .14);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--surface);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    .container { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+    /* ---------- BUTTONS ---------- */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 10px 20px; border-radius: 10px; border: 1px solid transparent;
+      font-family: inherit; font-size: .925rem; font-weight: 600;
+      cursor: pointer; white-space: nowrap; transition: all .2s ease;
+    }
+    .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(254, 66, 77, .28); }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 10px 24px rgba(254, 66, 77, .35); }
+
+    .btn-outline { background: #fff; border-color: var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); transform: translateY(-2px); }
+
+    .btn-ghost { color: var(--muted); }
+    .btn-ghost:hover { background: var(--primary-light); color: var(--primary); }
+
+    .btn-sm { padding: 8px 16px; font-size: .85rem; border-radius: 9px; }
+
+    /* ---------- PAGE HEADER ---------- */
+    .page-head {
+      position: relative; overflow: hidden;
+      padding: 44px 0 40px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-head::before {
+      content: ''; position: absolute; top: -240px; right: -140px;
+      width: 520px; height: 520px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(254, 66, 77, .12), transparent 68%);
+      pointer-events: none;
+    }
+    .page-head-inner { position: relative; z-index: 1; }
+
+    .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); margin-bottom: 18px; }
+    .breadcrumb a:hover { color: var(--primary); }
+    .breadcrumb span.sep { opacity: .5; }
+
+    .head-row { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 24px; }
+
+    .head-title { display: flex; align-items: center; gap: 16px; }
+    .head-icon {
+      width: 58px; height: 58px; border-radius: 16px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: grid; place-items: center; font-size: 26px;
+      box-shadow: 0 8px 20px rgba(254, 66, 77, .3);
+    }
+    .head-title h1 { font-size: clamp(1.5rem, 3.4vw, 2.05rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.15; }
+
+    .chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 4px 12px; border-radius: 999px;
+      font-size: .75rem; font-weight: 700; letter-spacing: .02em;
+    }
+    .chip-in  { background: #dcfce7; color: #15803d; }
+    .chip-low { background: #fef3c7; color: #b45309; }
+    .chip-out { background: #fee2e2; color: #b91c1c; }
+    .chip .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+    .head-meta { font-size: .85rem; color: var(--muted); margin-top: 6px; }
+
+    /* ---------- STAT CARDS ---------- */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 18px;
+      margin: -32px 0 0;
+      position: relative;
+      z-index: 2;
+    }
+    .stat-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 16px;
+      padding: 22px 22px 20px; box-shadow: var(--shadow-sm);
+      transition: all .25s ease;
+    }
+    .stat-card:hover { transform: translateY(-4px); border-color: #ffc9ce; box-shadow: var(--shadow-md); }
+    .stat-label {
+      font-size: .72rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em;
+      display: flex; align-items: center; gap: 7px; margin-bottom: 10px;
+    }
+    .stat-value { font-size: 1.7rem; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; }
+    .stat-value small { font-size: .9rem; font-weight: 600; color: var(--muted); margin-left: 4px; }
+    .stat-sub { font-size: .78rem; color: var(--muted); margin-top: 6px; }
+    .accent-text { color: var(--primary); }
+
+    /* ---------- SECTIONS / CARDS ---------- */
+    .section { padding: 40px 0; }
+    .section:last-of-type { padding-bottom: 80px; }
+
+    .card {
+      background: #fff; border: 1px solid var(--border); border-radius: 18px;
+      box-shadow: var(--shadow-sm); overflow: hidden;
+    }
+    .card-head {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+    }
+    .card-head h2 { font-size: 1.05rem; font-weight: 700; letter-spacing: -.01em; display: flex; align-items: center; gap: 9px; }
+    .card-head p { font-size: .82rem; color: var(--muted); }
+    .card-body { padding: 24px; }
+
+    /* ---------- DETAILS LIST ---------- */
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 0;
+    }
+    .detail-item {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-item:nth-child(odd) { border-right: 1px solid var(--border); }
+    .detail-label {
+      font-size: .72rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .detail-value { font-size: .98rem; font-weight: 600; word-break: break-word; }
+    .detail-value.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88rem; }
+
+    /* ---------- CHART ---------- */
+    .chart-wrap { position: relative; height: 320px; }
+    @media (max-width: 560px) { .chart-wrap { height: 250px; } }
+
+    .empty-state {
+      text-align: center; padding: 56px 24px; color: var(--muted);
+    }
+    .empty-state .icon { font-size: 40px; margin-bottom: 12px; opacity: .6; }
+    .empty-state h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .empty-state p { font-size: .88rem; }
+
+    /* ---------- ACTIVITY TABLE ---------- */
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    thead th {
+      text-align: left; padding: 13px 24px;
+      font-size: .72rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody td { padding: 15px 24px; border-bottom: 1px solid var(--border); }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr { transition: background .15s; }
+    tbody tr:hover { background: var(--primary-light); }
+
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 11px; border-radius: 999px;
+      font-size: .78rem; font-weight: 700;
+      background: var(--primary-light); color: var(--primary);
+    }
+    .pill-neutral { background: var(--surface); color: var(--muted); }
+
+    .idx {
+      display: inline-grid; place-items: center;
+      width: 26px; height: 26px; border-radius: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      font-size: .75rem; font-weight: 700; color: var(--muted);
+    }
+
+    /* ---------- ACTION BAR ---------- */
+    .action-bar {
+      display: flex; flex-wrap: wrap; gap: 12px;
+      align-items: center; justify-content: space-between;
+      padding: 24px 0 0;
+    }
+    .action-bar .group { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    .danger { color: #b91c1c; }
+    .danger:hover { background: #fee2e2; color: #b91c1c; }
+
+    @media (max-width: 700px) {
+      .detail-item:nth-child(odd) { border-right: none; }
+      .head-row { flex-direction: column; }
+      .action-bar { flex-direction: column; align-items: stretch; }
+      .action-bar .group { width: 100%; }
+      .action-bar .group .btn { flex: 1; }
+    }
+  </style>
+
+
+<% if (activity.length > 0) { %>
+<script>
+  const chartLabels = <%- JSON.stringify(chartLabels) %>;
+  const chartValues = <%- JSON.stringify(chartValues) %>;
+  const chartTimes  = <%- JSON.stringify(chartTimes) %>;
+
+  const ctx = document.getElementById('usageChart').getContext('2d');
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 320);
+  gradient.addColorStop(0,   'rgba(254, 66, 77, 0.35)');
+  gradient.addColorStop(0.6, 'rgba(254, 66, 77, 0.10)');
+  gradient.addColorStop(1,   'rgba(254, 66, 77, 0.01)');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        label: 'Units Used',
+        data: chartValues,
+        borderColor: '#fe424d',
+        backgroundColor: gradient,
+        borderWidth: 3,
+        fill: true,
+        tension: 0.38,
+        pointBackgroundColor: '#fe424d',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: '#fe424d',
+        pointHoverBorderColor: '#ffffff',
+        pointHoverBorderWidth: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0f172a',
+          titleColor: '#ffffff',
+          bodyColor: '#e2e8f0',
+          padding: 14,
+          cornerRadius: 10,
+          displayColors: false,
+          titleFont: { family: 'Inter', size: 13, weight: '700' },
+          bodyFont:  { family: 'Inter', size: 13, weight: '500' },
+          callbacks: {
+            title: (items) => chartTimes[items[0].dataIndex] || items[0].label,
+            label: (item) => `  ${item.parsed.y} units used`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          border: { display: false },
+          ticks: {
+            color: '#64748b',
+            font: { family: 'Inter', size: 11, weight: '600' },
+            maxRotation: 0,
+            autoSkipPadding: 16
+          }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: '#e2e8f0', drawTicks: false },
+          border: { display: false, dash: [4, 4] },
+          ticks: {
+            color: '#64748b',
+            font: { family: 'Inter', size: 11, weight: '600' },
+            padding: 10,
+            precision: 0
+          }
+        }
+      }
+    }
+  });
+</script>
+<% } %>
