@@ -76,4 +76,4 @@ app.use((err, req, res, next) => {
     res.status(statusCode).render("error.ejs" , {message});
 });
 
-app.listen(8088 , ()=>{console.log("app is listing on port" , 8088);});
+app.listen(8088 , ()=>{console.log("app  is listing on port" , 8088);});
